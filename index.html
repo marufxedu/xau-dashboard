@@ -2,18 +2,49 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0a0d10">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Layer Control">
+<link rel="manifest" href='data:application/manifest+json,{"id":"/","name":"XAUUSDc Layer Control","short_name":"Layer Control","start_url":".","display":"standalone","display_override":["standalone","fullscreen"],"orientation":"portrait","background_color":"#0a0d10","theme_color":"#0a0d10","scope":"."}'>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23b98c2f'/%3E%3Ctext x='90' y='116' font-family='Arial' font-size='84' font-weight='700' text-anchor='middle' fill='%231b1405'%3EAu%3C/text%3E%3C/svg%3E">
 <title>XAUUSDc Layer Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0a0d10;--surface:#11161a;--raise:#171e23;--line:#202a31;--text:#e8edf0;--mute:#71818a;--gold:#cfa94e;--buy:#3ecf9b;--sell:#ef6a5f;--blue:#6ab0f0}
-*{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{background:radial-gradient(900px 420px at 50% -120px,#15202a 0,var(--bg) 70%) no-repeat,var(--bg);color:var(--text);font:15px/1.45 Inter,"Segoe UI",system-ui,sans-serif;min-height:100vh;display:flex;justify-content:center;padding:max(18px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom));font-variant-numeric:tabular-nums}
-.app{width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px}
+*{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
+html{
+  -webkit-text-size-adjust:100%;
+  background:#0a0d10;
+  height:100%;
+  overflow:hidden;
+}
+body{
+  background:radial-gradient(900px 420px at 50% -120px,#15202a 0,var(--bg) 70%) no-repeat,var(--bg);
+  color:var(--text);
+  font:15px/1.45 Inter,"Segoe UI",system-ui,sans-serif;
+  height:100vh;
+  height:100dvh;
+  width:100vw;
+  overflow-y:auto;
+  overflow-x:hidden;
+  display:flex;
+  justify-content:center;
+  padding-top:calc(max(18px, env(safe-area-inset-top)));
+  padding-right:calc(max(16px, env(safe-area-inset-right)));
+  padding-bottom:calc(max(24px, env(safe-area-inset-bottom)));
+  padding-left:calc(max(16px, env(safe-area-inset-left)));
+  overscroll-behavior:none;
+  -webkit-tap-highlight-color:transparent;
+  font-variant-numeric:tabular-nums;
+  -webkit-user-select:none;
+  user-select:none;
+}
+.app{width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px;margin:0 auto}
 .head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 2px}
 .brand{display:flex;align-items:center;gap:12px;min-width:0}
 .mark{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:700;color:#1b1405;background:linear-gradient(145deg,#ecd58f,#b98c2f);box-shadow:0 4px 18px rgba(207,169,78,.25)}
@@ -30,7 +61,7 @@ details summary::after{content:"Show";color:var(--blue)}
 details[open] summary::after{content:"Hide"}
 .tokrow{margin-top:12px}
 label{display:block;font-size:.76rem;color:var(--mute);margin-bottom:7px;font-weight:500}
-input{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--text);font:inherit}
+input{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--text);font:inherit;-webkit-user-select:text;user-select:text}
 input:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .hint{color:var(--mute);font-size:.74rem;margin-top:8px}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -76,7 +107,7 @@ input:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid
 .log .st{font-size:.76rem;font-weight:600;color:var(--buy)}
 .log .st.fail{color:var(--sell)}
 .empty{color:var(--mute);font-size:.84rem}
-.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translate(-50%,24px);opacity:0;pointer-events:none;background:var(--raise);border:1px solid var(--line);border-left:3px solid var(--mute);padding:12px 16px;border-radius:12px;font-size:.84rem;max-width:min(92vw,420px);box-shadow:0 14px 40px rgba(0,0,0,.5);transition:opacity .2s,transform .2s}
+.toast{position:fixed;left:50%;bottom:calc(max(20px,env(safe-area-inset-bottom)));transform:translate(-50%,24px);opacity:0;pointer-events:none;background:var(--raise);border:1px solid var(--line);border-left:3px solid var(--mute);padding:12px 16px;border-radius:12px;font-size:.84rem;max-width:min(92vw,420px);box-shadow:0 14px 40px rgba(0,0,0,.5);transition:opacity .2s,transform .2s;z-index:9999}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .toast.ok{border-left-color:var(--buy)}.toast.err{border-left-color:var(--sell)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -149,7 +180,7 @@ try { const s = JSON.parse(localStorage.getItem('xauDash') || '{}');
   logItems = JSON.parse(localStorage.getItem('xauLog') || '[]');
 } catch {}
 const save = () => { try { localStorage.setItem('xauDash', JSON.stringify(Object.fromEntries(FIELDS.map(k => [k, $(k).value])))); localStorage.setItem('xauLog', JSON.stringify(logItems)); } catch {} };
-if (!$('token').value.trim()) $('tokBox').open = true;
+if (!$('token').value.trim())$('tokBox').open = true;
 
 const params = () => ({ lot: parseFloat($('lot').value), layers: parseInt($('layers').value), gap: parseInt($('gap').value) });
 const valid = p => p.lot > 0 && p.layers >= 1 && p.layers <= 20 && p.gap >= 1;
@@ -171,8 +202,8 @@ document.querySelectorAll('.step button').forEach(b => b.addEventListener('click
 // ---- ladder preview
 function refresh(){
   const p = params(), el = $('rows');
-  $('sBuy').textContent = $('sSell').textContent = valid(p) ? `${p.lot} lot x ${p.layers}` : '';
-  if (!valid(p)) { el.innerHTML = '<div class="empty">Enter a lot, layers and gap to preview.</div>'; $('totLots').textContent = $('totSpan').textContent = ''; save(); return; }
+  $('sBuy').textContent =$('sSell').textContent = valid(p) ? `${p.lot} lot x ${p.layers}` : '';
+  if (!valid(p)) { el.innerHTML = '<div class="empty">Enter a lot, layers and gap to preview.</div>'; $('totLots').textContent =$('totSpan').textContent = ''; save(); return; }
   const buy = side === 'BUY', c = buy ? 'var(--buy)' : 'var(--sell)';
   $('lhTitle').textContent = buy ? 'Buy ladder' : 'Sell ladder';
   const rows = [];
@@ -186,9 +217,8 @@ function refresh(){
   $('totSpan').innerHTML = `Deepest layer <b>${(p.layers - 1) * p.gap}</b> pts away`;
   save();
 }
-['lot','layers','gap'].forEach(k => $(k).addEventListener('input', refresh));
-$('token').addEventListener('change', () => { save(); checkConn(); });
-[['bBuy','BUY'],['bSell','SELL']].forEach(([id, s]) => ['mouseenter','focus'].forEach(ev => $(id).addEventListener(ev, () => { side = s; refresh(); })));
+['lot','layers','gap'].forEach(k => $(k).addEventListener('input', refresh));$('token').addEventListener('change', () => { save(); checkConn(); });
+[['bBuy','BUY'],['bSell','SELL']].forEach(([id, s]) => ['mouseenter','focus','touchstart'].forEach(ev => $(id).addEventListener(ev, () => { side = s; refresh(); }, {passive: true})));
 
 // ---- GitHub as the relay
 const repoUrl = () => `https://api.github.com/repos/${REPO}`;
@@ -233,7 +263,7 @@ function renderLog(){
 async function send(cmd, btn){
   const p = params(), isTrade = cmd === 'BUY' || cmd === 'SELL';
   if (isTrade && !valid(p)) return toast('Check lot, layers and gap.', 'err');
-  if (!$('token').value.trim()) { $('tokBox').open = true; return toast('Add your access token first.', 'err'); }
+  if (!$('token').value.trim()) {$('tokBox').open = true; return toast('Add your access token first.', 'err'); }
   btn.disabled = true;
   lastId = Math.max(Math.floor(Date.now() / 1000), lastId + 1);
   const line = `${lastId}|${cmd}|${p.lot}|${p.layers}|${p.gap}`;
@@ -243,10 +273,7 @@ async function send(cmd, btn){
   logItems.unshift(entry); logItems = logItems.slice(0, 10); save(); renderLog();
   btn.disabled = false;
 }
-$('bBuy').onclick = () => send('BUY', $('bBuy'));
-$('bSell').onclick = () => send('SELL', $('bSell'));
-$('bBE').onclick = () => send('SET_BE', $('bBE'));
-$('bClose').onclick = () => {
+$('bBuy').onclick = () => send('BUY', $('bBuy'));$('bSell').onclick = () => send('SELL', $('bSell'));$('bBE').onclick = () => send('SET_BE', $('bBE'));$('bClose').onclick = () => {
   const b = $('bClose');
   if (closeArmed) { clearTimeout(closeArmed); closeArmed = null; b.classList.remove('armed'); b.textContent = 'Close all'; send('CLOSE', b); }
   else { b.classList.add('armed'); b.textContent = 'Tap again to confirm';
