@@ -2,159 +2,203 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0d10">
 <title>XAUUSDc Layer Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0d1113;--panel:#141a1d;--raise:#1a2226;--line:#27323a;--text:#dbe3e7;--mute:#7f8f97;--buy:#2fbf8f;--sell:#f0645a;--amber:#e0a93b;--blue:#5aa9e6}
+:root{--bg:#0a0d10;--surface:#11161a;--raise:#171e23;--line:#202a31;--text:#e8edf0;--mute:#71818a;--gold:#cfa94e;--buy:#3ecf9b;--sell:#ef6a5f;--blue:#6ab0f0}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font:15px/1.4 "Segoe UI",system-ui,sans-serif;min-height:100vh;display:flex;justify-content:center;padding:16px}
-.app{width:100%;max-width:460px;display:flex;flex-direction:column;gap:14px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
-.top{display:flex;justify-content:space-between;align-items:center}
-h1{font-size:1.15rem;font-weight:600}
-.sub{color:var(--mute);font-size:.8rem}
-.pill{display:flex;align-items:center;gap:6px;font-size:.78rem;padding:5px 10px;border-radius:99px;background:var(--raise);border:1px solid var(--line)}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--mute)}
-.pill.ok .dot{background:var(--buy);box-shadow:0 0 6px var(--buy)}
-.pill.wait .dot{background:var(--amber)}
+html{-webkit-text-size-adjust:100%}
+body{background:radial-gradient(900px 420px at 50% -120px,#15202a 0,var(--bg) 70%) no-repeat,var(--bg);color:var(--text);font:15px/1.45 Inter,"Segoe UI",system-ui,sans-serif;min-height:100vh;display:flex;justify-content:center;padding:max(18px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom));font-variant-numeric:tabular-nums}
+.app{width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 2px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.mark{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:700;color:#1b1405;background:linear-gradient(145deg,#ecd58f,#b98c2f);box-shadow:0 4px 18px rgba(207,169,78,.25)}
+h1{font-size:1.05rem;font-weight:600;letter-spacing:-.01em}
+.sub{color:var(--mute);font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{flex:none;display:flex;align-items:center;gap:7px;font-size:.76rem;font-weight:500;padding:6px 11px;border-radius:99px;background:var(--surface);border:1px solid var(--line)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--mute)}
+.pill.ok .dot{background:var(--buy);box-shadow:0 0 0 3px rgba(62,207,155,.18)}
+.pill.wait .dot{background:var(--gold)}
 .pill.bad .dot{background:var(--sell)}
-details summary{cursor:pointer;color:var(--mute);font-size:.82rem;list-style:none}
-details summary::before{content:"\25B8  "}
-details[open] summary::before{content:"\25BE  "}
-.conn{display:grid;gap:10px;margin-top:12px}
-label{display:block;font-size:.78rem;color:var(--mute);margin-bottom:5px}
-input{width:100%;padding:10px 11px;background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--text);font:inherit;font-variant-numeric:tabular-nums}
-input:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
-.params{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.ladder-head{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.82rem}
-.ladder-head b{font-weight:600}
-.rows{display:flex;flex-direction:column;gap:3px;font-variant-numeric:tabular-nums;font-size:.82rem}
-.row{display:grid;grid-template-columns:62px 1fr 74px;align-items:center;gap:10px;padding:4px 0}
-.row .pts{color:var(--mute);text-align:right}
-.row .bar{height:6px;border-radius:3px;background:var(--c);opacity:.75}
-.row.mkt .bar{opacity:1;height:9px}
-.row .t{color:var(--mute)}
-.row.tp{color:var(--amber)}
-.row.tp .bar{background:repeating-linear-gradient(90deg,var(--amber) 0 6px,transparent 6px 10px);height:2px;opacity:1}
-.row.tp .pts,.row.tp .t{color:var(--amber)}
-.total{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--mute);font-size:.8rem;display:flex;justify-content:space-between}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-button{border:0;border-radius:8px;padding:14px 10px;font:inherit;font-weight:700;color:#fff;cursor:pointer;transition:transform .08s,filter .15s}
-button:hover{filter:brightness(1.12)}
-button:active{transform:scale(.98)}
-button:disabled{opacity:.5;cursor:wait}
-.buy{background:#1f9d73}.sell{background:#d94c43}
-.sec{background:var(--raise);border:1px solid var(--line);color:var(--text);font-weight:600}
-.sec.armed{background:var(--amber);color:#1a1405;border-color:var(--amber)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.log{list-style:none;font-size:.82rem;display:flex;flex-direction:column;gap:7px}
-.log li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline}
-.log .time{color:var(--mute);font-variant-numeric:tabular-nums}
-.log .st{font-size:.75rem;color:var(--amber)}
-.log .st.done{color:var(--buy)}
-.empty{color:var(--mute);font-size:.82rem}
-#msg{min-height:1.2em;font-size:.82rem;margin-top:10px;color:var(--mute)}
+.card{background:linear-gradient(180deg,var(--surface),#0f1417);border:1px solid var(--line);border-radius:16px;padding:18px}
+details summary{cursor:pointer;color:var(--mute);font-size:.82rem;list-style:none;display:flex;justify-content:space-between}
+details summary::after{content:"Show";color:var(--blue)}
+details[open] summary::after{content:"Hide"}
+.tokrow{margin-top:12px}
+label{display:block;font-size:.76rem;color:var(--mute);margin-bottom:7px;font-weight:500}
+input{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--text);font:inherit}
+input:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.hint{color:var(--mute);font-size:.74rem;margin-top:8px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.step{display:flex;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.step button{flex:none;width:30px;height:44px;background:none;border:0;color:var(--mute);font-size:1.15rem;cursor:pointer;transition:color .15s,background .15s}
+.step button:hover{color:var(--text);background:var(--raise)}
+.step input{border:0;background:none;text-align:center;padding:0;font-weight:600;font-size:1.05rem;min-width:0;border-radius:0;-moz-appearance:textfield}
+.step input::-webkit-outer-spin-button,.step input::-webkit-inner-spin-button{-webkit-appearance:none}
+.step input:focus-visible{outline:none}
+.step:focus-within{border-color:var(--blue)}
+.ladder{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.lh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.lh b{font-weight:600;font-size:.92rem}
+.rows{position:relative;display:flex;flex-direction:column;gap:2px;font-size:.82rem}
+.row{display:grid;grid-template-columns:54px 14px 1fr auto;align-items:center;gap:10px;height:26px}
+.row .pts{text-align:right;color:var(--mute)}
+.row .node{width:9px;height:9px;border-radius:50%;background:var(--c);opacity:var(--o);justify-self:center;position:relative;z-index:1}
+.row.mkt .node{box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 22%,transparent);opacity:1}
+.row .bar{height:5px;border-radius:3px;background:linear-gradient(90deg,var(--c),transparent);opacity:var(--o)}
+.row .t{color:var(--mute);font-size:.78rem}
+.row.mkt .t,.row.mkt .pts{color:var(--text)}
+.rows::before{content:"";position:absolute;left:67px;top:6px;bottom:6px;width:1px;background:var(--line)}
+.sum{display:flex;justify-content:space-between;margin-top:14px;font-size:.78rem;color:var(--mute)}
+.sum b{color:var(--text);font-weight:600}
+.go{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.act{border:0;border-radius:14px;padding:15px 12px;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;transition:transform .08s,filter .15s,box-shadow .2s}
+.act b{font-size:1.02rem;font-weight:650}
+.act small{font-size:.74rem;opacity:.82;font-weight:500}
+.act:hover{filter:brightness(1.1)}
+.act:active{transform:scale(.985)}
+.act:disabled{opacity:.55;cursor:wait}
+.buy{background:linear-gradient(180deg,#27b585,#1a8e66);box-shadow:0 8px 24px -10px rgba(62,207,155,.55)}
+.sell{background:linear-gradient(180deg,#ea5d52,#c4423a);box-shadow:0 8px 24px -10px rgba(239,106,95,.55)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sec{background:var(--surface);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:13px;font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.sec:hover{background:var(--raise);border-color:#2c3841}
+.sec:disabled{opacity:.55;cursor:wait}
+.sec.armed{background:var(--gold);color:#1b1405;border-color:var(--gold)}
+.log{list-style:none;display:flex;flex-direction:column;gap:11px;font-size:.84rem}
+.log li{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:baseline}
+.log .time{color:var(--mute);font-size:.78rem}
+.log .d{color:var(--mute);font-size:.78rem}
+.log .st{font-size:.76rem;font-weight:600;color:var(--buy)}
+.log .st.fail{color:var(--sell)}
+.empty{color:var(--mute);font-size:.84rem}
+.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translate(-50%,24px);opacity:0;pointer-events:none;background:var(--raise);border:1px solid var(--line);border-left:3px solid var(--mute);padding:12px 16px;border-radius:12px;font-size:.84rem;max-width:min(92vw,420px);box-shadow:0 14px 40px rgba(0,0,0,.5);transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.ok{border-left-color:var(--buy)}.toast.err{border-left-color:var(--sell)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <main class="app">
 
-<div class="card">
-  <div class="top">
-    <div><h1>XAUUSDc Layer Control</h1><div class="sub">Controls your MT5 EA through GitHub</div></div>
-    <div class="pill wait" id="pill"><span class="dot"></span><span id="pillTxt">Checking...</span></div>
+<header class="head">
+  <div class="brand">
+    <div class="mark" aria-hidden="true">Au</div>
+    <div style="min-width:0"><h1>XAUUSDc Layer Control</h1><div class="sub">Linked to marufxedu/xau-commands</div></div>
   </div>
-  <details id="connBox" style="margin-top:14px">
-    <summary>GitHub connection</summary>
-    <div class="conn">
-      <div><label for="repo">Command repo (private), as owner/name</label>
-      <input id="repo" placeholder="yourname/xau-commands" autocomplete="off" autocapitalize="off"></div>
-      <div><label for="token">Fine-grained access token (this repo only, Contents: read and write)</label>
-      <input id="token" type="password" autocomplete="off"></div>
-      <div class="sub">Both are saved only in this browser.</div>
+  <div class="pill wait" id="pill"><span class="dot"></span><span id="pillTxt">Checking</span></div>
+</header>
+
+<div class="card" style="padding:14px 18px">
+  <details id="tokBox">
+    <summary>Access token</summary>
+    <div class="tokrow">
+      <label for="token">Fine-grained token for the command repo (Contents: read and write)</label>
+      <input id="token" type="password" autocomplete="off" placeholder="github_pat_...">
+      <div class="hint">Saved only in this browser.</div>
     </div>
   </details>
 </div>
 
-<div class="card">
-  <div class="params">
-    <div><label for="lot">Lot per layer</label><input id="lot" type="number" step="0.01" min="0.01" value="0.01"></div>
-    <div><label for="layers">Layers</label><input id="layers" type="number" step="1" min="1" max="20" value="5"></div>
-    <div><label for="gap">Gap (points)</label><input id="gap" type="number" step="10" min="10" value="60"></div>
+<section class="card" aria-label="Order setup">
+  <div class="steps">
+    <div><label for="lot">Lot per layer</label>
+      <div class="step"><button type="button" data-f="lot" data-d="-1" aria-label="Decrease lot">&minus;</button><input id="lot" type="number" step="0.01" min="0.01" value="0.01" inputmode="decimal"><button type="button" data-f="lot" data-d="1" aria-label="Increase lot">+</button></div></div>
+    <div><label for="layers">Layers</label>
+      <div class="step"><button type="button" data-f="layers" data-d="-1" aria-label="Fewer layers">&minus;</button><input id="layers" type="number" step="1" min="1" max="20" value="5" inputmode="numeric"><button type="button" data-f="layers" data-d="1" aria-label="More layers">+</button></div></div>
+    <div><label for="gap">Gap in points</label>
+      <div class="step"><button type="button" data-f="gap" data-d="-1" aria-label="Smaller gap">&minus;</button><input id="gap" type="number" step="10" min="10" value="60" inputmode="numeric"><button type="button" data-f="gap" data-d="1" aria-label="Bigger gap">+</button></div></div>
   </div>
+  <div class="ladder">
+    <div class="lh"><b id="lhTitle">Buy ladder</b><span class="sub">Points from first entry</span></div>
+    <div class="rows" id="rows"></div>
+    <div class="sum"><span id="totLots"></span><span id="totSpan"></span></div>
+  </div>
+</section>
+
+<div class="go">
+  <button class="act buy" id="bBuy"><b>Layer buy</b><small id="sBuy"></small></button>
+  <button class="act sell" id="bSell"><b>Layer sell</b><small id="sSell"></small></button>
+</div>
+<div class="two">
+  <button class="sec" id="bBE">Set break even</button>
+  <button class="sec" id="bClose">Close all</button>
 </div>
 
-<div class="card">
-  <div class="ladder-head"><b id="lhTitle">Buy ladder</b><span class="sub">Take profit <span id="tpv">150</span> pts from first entry</span></div>
-  <div class="rows" id="rows"></div>
-  <div class="total"><span id="totLots"></span><span id="totSpan"></span></div>
-</div>
-
-<div class="card">
-  <div class="btns">
-    <button class="buy" id="bBuy">Layer buy</button>
-    <button class="sell" id="bSell">Layer sell</button>
-  </div>
-  <div class="row2">
-    <button class="sec" id="bBE">Set break even</button>
-    <button class="sec" id="bClose">Close all</button>
-  </div>
-  <div id="msg" role="status" aria-live="polite"></div>
-</div>
-
-<div class="card">
-  <label style="margin-bottom:10px">Recent commands</label>
-  <ul class="log" id="log"><li class="empty">Nothing sent yet.</li></ul>
-</div>
+<section class="card" aria-label="Recent commands">
+  <label style="margin-bottom:12px">Recent commands</label>
+  <ul class="log" id="log"></ul>
+</section>
 
 </main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
-const TP_PTS = 150; // keep in sync with InpTakeProfitPts in the EA
+const REPO = 'marufxedu/xau-commands';
 const $ = id => document.getElementById(id);
-const FIELDS = ['repo','token','lot','layers','gap'];
-let side = 'BUY', closeArmed = null, lastId = 0, logItems = [];
+const FIELDS = ['token','lot','layers','gap'];
+const LIM = { lot:[0.01,100,0.01], layers:[1,20,1], gap:[10,5000,10] };
+let side = 'BUY', closeArmed = null, lastId = 0, logItems = [], toastT;
 
 try { const s = JSON.parse(localStorage.getItem('xauDash') || '{}');
   FIELDS.forEach(k => { if (s[k] !== undefined) $(k).value = s[k]; });
   logItems = JSON.parse(localStorage.getItem('xauLog') || '[]');
 } catch {}
-function save(){ try{ localStorage.setItem('xauDash', JSON.stringify(Object.fromEntries(FIELDS.map(k=>[k,$(k).value])))); localStorage.setItem('xauLog', JSON.stringify(logItems)); }catch{} }
-if (!$('token').value || !$('repo').value) $('connBox').open = true;
+const save = () => { try { localStorage.setItem('xauDash', JSON.stringify(Object.fromEntries(FIELDS.map(k => [k, $(k).value])))); localStorage.setItem('xauLog', JSON.stringify(logItems)); } catch {} };
+if (!$('token').value.trim()) $('tokBox').open = true;
 
 const params = () => ({ lot: parseFloat($('lot').value), layers: parseInt($('layers').value), gap: parseInt($('gap').value) });
 const valid = p => p.lot > 0 && p.layers >= 1 && p.layers <= 20 && p.gap >= 1;
 
+function toast(msg, kind){
+  const t = $('toast'); t.textContent = msg; t.className = 'toast show ' + (kind || '');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 3800);
+}
+
+// ---- steppers
+document.querySelectorAll('.step button').forEach(b => b.addEventListener('click', () => {
+  const f = b.dataset.f, [min, max, st] = LIM[f], el = $(f);
+  let v = (parseFloat(el.value) || min) + st * parseInt(b.dataset.d);
+  v = Math.min(max, Math.max(min, v));
+  el.value = f === 'lot' ? v.toFixed(2) : Math.round(v);
+  refresh();
+}));
+
 // ---- ladder preview
-function drawLadder(){
-  const p = params(); const el = $('rows');
-  if (!valid(p)) { el.innerHTML = '<div class="empty">Enter a lot, layers and gap to preview.</div>'; return; }
+function refresh(){
+  const p = params(), el = $('rows');
+  $('sBuy').textContent = $('sSell').textContent = valid(p) ? `${p.lot} lot x ${p.layers}` : '';
+  if (!valid(p)) { el.innerHTML = '<div class="empty">Enter a lot, layers and gap to preview.</div>'; $('totLots').textContent = $('totSpan').textContent = ''; save(); return; }
   const buy = side === 'BUY', c = buy ? 'var(--buy)' : 'var(--sell)';
   $('lhTitle').textContent = buy ? 'Buy ladder' : 'Sell ladder';
-  $('tpv').textContent = TP_PTS;
   const rows = [];
-  for (let i = 0; i < p.layers; i++) { const off = (buy ? -1 : 1) * i * p.gap;
-    rows.push({ off, html: `<div class="row ${i===0?'mkt':''}" style="--c:${c}"><span class="pts">${off>0?'+':''}${off}</span><span class="bar"></span><span class="t">${i===0?'Market':'Limit'} ${p.lot}</span></div>` }); }
-  const tp = buy ? TP_PTS : -TP_PTS;
-  rows.push({ off: tp, html: `<div class="row tp"><span class="pts">${tp>0?'+':''}${tp}</span><span class="bar"></span><span class="t">Take profit</span></div>` });
-  rows.sort((a,b) => b.off - a.off);
+  for (let i = 0; i < p.layers; i++) {
+    const off = (buy ? -1 : 1) * i * p.gap, o = (1 - (i / Math.max(p.layers, 2)) * 0.6).toFixed(2);
+    rows.push({ off, html: `<div class="row ${i===0?'mkt':''}" style="--c:${c};--o:${o}"><span class="pts">${off>0?'+':''}${off}</span><span class="node"></span><span class="bar"></span><span class="t">${i===0?'Market':'Limit'} ${p.lot}</span></div>` });
+  }
+  rows.sort((a, b) => b.off - a.off);
   el.innerHTML = rows.map(r => r.html).join('');
-  $('totLots').textContent = `${(p.lot*p.layers).toFixed(2)} lots if all fill`;
-  $('totSpan').textContent = `Deepest layer ${(p.layers-1)*p.gap} pts away`;
+  $('totLots').innerHTML = `<b>${(p.lot * p.layers).toFixed(2)}</b> lots if all fill`;
+  $('totSpan').innerHTML = `Deepest layer <b>${(p.layers - 1) * p.gap}</b> pts away`;
+  save();
 }
-['lot','layers','gap'].forEach(k => $(k).addEventListener('input', () => { drawLadder(); save(); }));
-['repo','token'].forEach(k => $(k).addEventListener('change', () => { save(); checkConn(); }));
-[['bBuy','BUY'],['bSell','SELL']].forEach(([id,s]) => ['mouseenter','focus'].forEach(ev => $(id).addEventListener(ev, () => { side = s; drawLadder(); })));
+['lot','layers','gap'].forEach(k => $(k).addEventListener('input', refresh));
+$('token').addEventListener('change', () => { save(); checkConn(); });
+[['bBuy','BUY'],['bSell','SELL']].forEach(([id, s]) => ['mouseenter','focus'].forEach(ev => $(id).addEventListener(ev, () => { side = s; refresh(); })));
 
 // ---- GitHub as the relay
-const repoUrl = () => `https://api.github.com/repos/${$('repo').value.trim()}`;
+const repoUrl = () => `https://api.github.com/repos/${REPO}`;
 const gh = () => ({ 'Authorization': 'Bearer ' + $('token').value.trim(), 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' });
-function explain(status){
-  if (status === 401) return 'GitHub rejected the token. Check it has not expired.';
-  if (status === 403) return 'The token cannot write to this repo. Give it Contents: read and write.';
-  if (status === 404) return 'Repo not found, or the token has no access to it. Use the form owner/repo.';
-  if (status === 409) return 'Another write got in first. Try again.';
-  return `GitHub returned ${status}.`;
+function explain(s){
+  if (s === 401) return 'GitHub rejected the token. Check it has not expired.';
+  if (s === 403) return 'The token cannot write to the repo. Give it Contents: read and write.';
+  if (s === 404) return 'Repo not found, or the token has no access to marufxedu/xau-commands.';
+  if (s === 409) return 'Another write got in first. Try again.';
+  return `GitHub returned ${s}.`;
 }
 async function pushCommand(line){
   const url = repoUrl() + '/contents/command.txt';
@@ -168,33 +212,34 @@ async function pushCommand(line){
 }
 function setPill(cls, txt){ $('pill').className = 'pill ' + cls; $('pillTxt').textContent = txt; }
 async function checkConn(){
-  if (!$('repo').value.trim() || !$('token').value.trim()) return setPill('wait', 'Add repo and token');
+  if (!$('token').value.trim()) return setPill('wait', 'Add token');
   try {
     const r = await fetch(repoUrl(), { headers: gh() });
-    if (!r.ok) return setPill('bad', r.status === 401 ? 'Bad token' : 'Repo not found');
+    if (!r.ok) return setPill('bad', r.status === 401 ? 'Bad token' : 'No access');
     const j = await r.json();
-    if (j.permissions && !j.permissions.push) return setPill('wait', 'Token is read-only');
-    setPill('ok', 'GitHub connected');
-  } catch { setPill('bad', 'No connection'); }
+    if (j.permissions && !j.permissions.push) return setPill('wait', 'Read-only token');
+    setPill('ok', 'Connected');
+  } catch { setPill('bad', 'Offline'); }
 }
 
-// ---- sending
-function say(t, color){ $('msg').textContent = t; $('msg').style.color = color || 'var(--mute)'; }
+// ---- commands
 const NAMES = { BUY:'Layer buy', SELL:'Layer sell', SET_BE:'Set break even', CLOSE:'Close all' };
 const fmt = t => new Date(t).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
 function renderLog(){
-  $('log').innerHTML = logItems.length ? logItems.map(e => `<li><span class="time">${fmt(e.t)}</span><span>${NAMES[e.cmd]} <span class="sub">${e.detail}</span></span><span class="st ${e.ok?'done':''}">${e.ok?'Sent':'Failed'}</span></li>`).join('') : '<li class="empty">Nothing sent yet.</li>';
+  $('log').innerHTML = logItems.length
+    ? logItems.map(e => `<li><span class="time">${fmt(e.t)}</span><span>${NAMES[e.cmd]}${e.detail ? ` <span class="d">${e.detail}</span>` : ''}</span><span class="st ${e.ok?'':'fail'}">${e.ok?'Sent':'Failed'}</span></li>`).join('')
+    : '<li class="empty">Nothing sent yet. Commands you send appear here.</li>';
 }
 async function send(cmd, btn){
-  const p = params(), trade = cmd === 'BUY' || cmd === 'SELL';
-  if (trade && !valid(p)) return say('Check lot, layers and gap.', 'var(--sell)');
-  if (!$('repo').value.trim() || !$('token').value.trim()) { $('connBox').open = true; return say('Add your repo and token first.', 'var(--sell)'); }
-  btn.disabled = true; say('Sending...');
+  const p = params(), isTrade = cmd === 'BUY' || cmd === 'SELL';
+  if (isTrade && !valid(p)) return toast('Check lot, layers and gap.', 'err');
+  if (!$('token').value.trim()) { $('tokBox').open = true; return toast('Add your access token first.', 'err'); }
+  btn.disabled = true;
   lastId = Math.max(Math.floor(Date.now() / 1000), lastId + 1);
   const line = `${lastId}|${cmd}|${p.lot}|${p.layers}|${p.gap}`;
-  const entry = { t: Date.now(), cmd, detail: trade ? `${p.lot} lot x ${p.layers} @ ${p.gap} pts` : '', ok: false };
-  try { await pushCommand(line); entry.ok = true; say('Sent. The EA picks it up on its next check (about 3 seconds).', 'var(--buy)'); }
-  catch (e) { say(e.message || 'Could not reach GitHub.', 'var(--sell)'); }
+  const entry = { t: Date.now(), cmd, detail: isTrade ? `${p.lot} lot x ${p.layers} @ ${p.gap}` : '', ok: false };
+  try { await pushCommand(line); entry.ok = true; toast(`${NAMES[cmd]} sent. The EA picks it up in about 3 seconds.`, 'ok'); }
+  catch (e) { toast(e.message || 'Could not reach GitHub.', 'err'); }
   logItems.unshift(entry); logItems = logItems.slice(0, 10); save(); renderLog();
   btn.disabled = false;
 }
@@ -204,10 +249,10 @@ $('bBE').onclick = () => send('SET_BE', $('bBE'));
 $('bClose').onclick = () => {
   const b = $('bClose');
   if (closeArmed) { clearTimeout(closeArmed); closeArmed = null; b.classList.remove('armed'); b.textContent = 'Close all'; send('CLOSE', b); }
-  else { b.classList.add('armed'); b.textContent = 'Tap again to close all';
+  else { b.classList.add('armed'); b.textContent = 'Tap again to confirm';
     closeArmed = setTimeout(() => { closeArmed = null; b.classList.remove('armed'); b.textContent = 'Close all'; }, 3000); }
 };
-drawLadder(); renderLog(); checkConn();
+refresh(); renderLog(); checkConn();
 </script>
 </body>
 </html>
