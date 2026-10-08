@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XAUUSDc Layer Control</title>
+<style>
+:root{--bg:#0d1113;--panel:#141a1d;--raise:#1a2226;--line:#27323a;--text:#dbe3e7;--mute:#7f8f97;--buy:#2fbf8f;--sell:#f0645a;--amber:#e0a93b;--blue:#5aa9e6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:15px/1.4 "Segoe UI",system-ui,sans-serif;min-height:100vh;display:flex;justify-content:center;padding:16px}
+.app{width:100%;max-width:460px;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.top{display:flex;justify-content:space-between;align-items:center}
+h1{font-size:1.15rem;font-weight:600}
+.sub{color:var(--mute);font-size:.8rem}
+.pill{display:flex;align-items:center;gap:6px;font-size:.78rem;padding:5px 10px;border-radius:99px;background:var(--raise);border:1px solid var(--line)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mute)}
+.pill.ok .dot{background:var(--buy);box-shadow:0 0 6px var(--buy)}
+.pill.wait .dot{background:var(--amber)}
+.pill.bad .dot{background:var(--sell)}
+details summary{cursor:pointer;color:var(--mute);font-size:.82rem;list-style:none}
+details summary::before{content:"\25B8  "}
+details[open] summary::before{content:"\25BE  "}
+.conn{display:grid;gap:10px;margin-top:12px}
+label{display:block;font-size:.78rem;color:var(--mute);margin-bottom:5px}
+input{width:100%;padding:10px 11px;background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--text);font:inherit;font-variant-numeric:tabular-nums}
+input:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.params{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ladder-head{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.82rem}
+.ladder-head b{font-weight:600}
+.rows{display:flex;flex-direction:column;gap:3px;font-variant-numeric:tabular-nums;font-size:.82rem}
+.row{display:grid;grid-template-columns:62px 1fr 74px;align-items:center;gap:10px;padding:4px 0}
+.row .pts{color:var(--mute);text-align:right}
+.row .bar{height:6px;border-radius:3px;background:var(--c);opacity:.75}
+.row.mkt .bar{opacity:1;height:9px}
+.row .t{color:var(--mute)}
+.row.tp{color:var(--amber)}
+.row.tp .bar{background:repeating-linear-gradient(90deg,var(--amber) 0 6px,transparent 6px 10px);height:2px;opacity:1}
+.row.tp .pts,.row.tp .t{color:var(--amber)}
+.total{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--mute);font-size:.8rem;display:flex;justify-content:space-between}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{border:0;border-radius:8px;padding:14px 10px;font:inherit;font-weight:700;color:#fff;cursor:pointer;transition:transform .08s,filter .15s}
+button:hover{filter:brightness(1.12)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.5;cursor:wait}
+.buy{background:#1f9d73}.sell{background:#d94c43}
+.sec{background:var(--raise);border:1px solid var(--line);color:var(--text);font-weight:600}
+.sec.armed{background:var(--amber);color:#1a1405;border-color:var(--amber)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.log{list-style:none;font-size:.82rem;display:flex;flex-direction:column;gap:7px}
+.log li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline}
+.log .time{color:var(--mute);font-variant-numeric:tabular-nums}
+.log .st{font-size:.75rem;color:var(--amber)}
+.log .st.done{color:var(--buy)}
+.empty{color:var(--mute);font-size:.82rem}
+#msg{min-height:1.2em;font-size:.82rem;margin-top:10px;color:var(--mute)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="app">
+
+<div class="card">
+  <div class="top">
+    <div><h1>XAUUSDc Layer Control</h1><div class="sub">Controls your MT5 EA through GitHub</div></div>
+    <div class="pill wait" id="pill"><span class="dot"></span><span id="pillTxt">Checking...</span></div>
+  </div>
+  <details id="connBox" style="margin-top:14px">
+    <summary>GitHub connection</summary>
+    <div class="conn">
+      <div><label for="repo">Command repo (private), as owner/name</label>
+      <input id="repo" placeholder="yourname/xau-commands" autocomplete="off" autocapitalize="off"></div>
+      <div><label for="token">Fine-grained access token (this repo only, Contents: read and write)</label>
+      <input id="token" type="password" autocomplete="off"></div>
+      <div class="sub">Both are saved only in this browser.</div>
+    </div>
+  </details>
+</div>
+
+<div class="card">
+  <div class="params">
+    <div><label for="lot">Lot per layer</label><input id="lot" type="number" step="0.01" min="0.01" value="0.01"></div>
+    <div><label for="layers">Layers</label><input id="layers" type="number" step="1" min="1" max="20" value="5"></div>
+    <div><label for="gap">Gap (points)</label><input id="gap" type="number" step="10" min="10" value="60"></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ladder-head"><b id="lhTitle">Buy ladder</b><span class="sub">Take profit <span id="tpv">150</span> pts from first entry</span></div>
+  <div class="rows" id="rows"></div>
+  <div class="total"><span id="totLots"></span><span id="totSpan"></span></div>
+</div>
+
+<div class="card">
+  <div class="btns">
+    <button class="buy" id="bBuy">Layer buy</button>
+    <button class="sell" id="bSell">Layer sell</button>
+  </div>
+  <div class="row2">
+    <button class="sec" id="bBE">Set break even</button>
+    <button class="sec" id="bClose">Close all</button>
+  </div>
+  <div id="msg" role="status" aria-live="polite"></div>
+</div>
+
+<div class="card">
+  <label style="margin-bottom:10px">Recent commands</label>
+  <ul class="log" id="log"><li class="empty">Nothing sent yet.</li></ul>
+</div>
+
+</main>
+<script>
+const TP_PTS = 150; // keep in sync with InpTakeProfitPts in the EA
+const $ = id => document.getElementById(id);
+const FIELDS = ['repo','token','lot','layers','gap'];
+let side = 'BUY', closeArmed = null, lastId = 0, logItems = [];
+
+try { const s = JSON.parse(localStorage.getItem('xauDash') || '{}');
+  FIELDS.forEach(k => { if (s[k] !== undefined) $(k).value = s[k]; });
+  logItems = JSON.parse(localStorage.getItem('xauLog') || '[]');
+} catch {}
+function save(){ try{ localStorage.setItem('xauDash', JSON.stringify(Object.fromEntries(FIELDS.map(k=>[k,$(k).value])))); localStorage.setItem('xauLog', JSON.stringify(logItems)); }catch{} }
+if (!$('token').value || !$('repo').value) $('connBox').open = true;
+
+const params = () => ({ lot: parseFloat($('lot').value), layers: parseInt($('layers').value), gap: parseInt($('gap').value) });
+const valid = p => p.lot > 0 && p.layers >= 1 && p.layers <= 20 && p.gap >= 1;
+
+// ---- ladder preview
+function drawLadder(){
+  const p = params(); const el = $('rows');
+  if (!valid(p)) { el.innerHTML = '<div class="empty">Enter a lot, layers and gap to preview.</div>'; return; }
+  const buy = side === 'BUY', c = buy ? 'var(--buy)' : 'var(--sell)';
+  $('lhTitle').textContent = buy ? 'Buy ladder' : 'Sell ladder';
+  $('tpv').textContent = TP_PTS;
+  const rows = [];
+  for (let i = 0; i < p.layers; i++) { const off = (buy ? -1 : 1) * i * p.gap;
+    rows.push({ off, html: `<div class="row ${i===0?'mkt':''}" style="--c:${c}"><span class="pts">${off>0?'+':''}${off}</span><span class="bar"></span><span class="t">${i===0?'Market':'Limit'} ${p.lot}</span></div>` }); }
+  const tp = buy ? TP_PTS : -TP_PTS;
+  rows.push({ off: tp, html: `<div class="row tp"><span class="pts">${tp>0?'+':''}${tp}</span><span class="bar"></span><span class="t">Take profit</span></div>` });
+  rows.sort((a,b) => b.off - a.off);
+  el.innerHTML = rows.map(r => r.html).join('');
+  $('totLots').textContent = `${(p.lot*p.layers).toFixed(2)} lots if all fill`;
+  $('totSpan').textContent = `Deepest layer ${(p.layers-1)*p.gap} pts away`;
+}
+['lot','layers','gap'].forEach(k => $(k).addEventListener('input', () => { drawLadder(); save(); }));
+['repo','token'].forEach(k => $(k).addEventListener('change', () => { save(); checkConn(); }));
+[['bBuy','BUY'],['bSell','SELL']].forEach(([id,s]) => ['mouseenter','focus'].forEach(ev => $(id).addEventListener(ev, () => { side = s; drawLadder(); })));
+
+// ---- GitHub as the relay
+const repoUrl = () => `https://api.github.com/repos/${$('repo').value.trim()}`;
+const gh = () => ({ 'Authorization': 'Bearer ' + $('token').value.trim(), 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' });
+function explain(status){
+  if (status === 401) return 'GitHub rejected the token. Check it has not expired.';
+  if (status === 403) return 'The token cannot write to this repo. Give it Contents: read and write.';
+  if (status === 404) return 'Repo not found, or the token has no access to it. Use the form owner/repo.';
+  if (status === 409) return 'Another write got in first. Try again.';
+  return `GitHub returned ${status}.`;
+}
+async function pushCommand(line){
+  const url = repoUrl() + '/contents/command.txt';
+  let sha;
+  const g = await fetch(url + '?t=' + Date.now(), { headers: gh(), cache: 'no-store' });
+  if (g.status === 200) sha = (await g.json()).sha;
+  else if (g.status !== 404) throw new Error(explain(g.status));
+  const body = { message: 'command', content: btoa(line), ...(sha ? { sha } : {}) };
+  const p = await fetch(url, { method: 'PUT', headers: { ...gh(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!p.ok) throw new Error(explain(p.status));
+}
+function setPill(cls, txt){ $('pill').className = 'pill ' + cls; $('pillTxt').textContent = txt; }
+async function checkConn(){
+  if (!$('repo').value.trim() || !$('token').value.trim()) return setPill('wait', 'Add repo and token');
+  try {
+    const r = await fetch(repoUrl(), { headers: gh() });
+    if (!r.ok) return setPill('bad', r.status === 401 ? 'Bad token' : 'Repo not found');
+    const j = await r.json();
+    if (j.permissions && !j.permissions.push) return setPill('wait', 'Token is read-only');
+    setPill('ok', 'GitHub connected');
+  } catch { setPill('bad', 'No connection'); }
+}
+
+// ---- sending
+function say(t, color){ $('msg').textContent = t; $('msg').style.color = color || 'var(--mute)'; }
+const NAMES = { BUY:'Layer buy', SELL:'Layer sell', SET_BE:'Set break even', CLOSE:'Close all' };
+const fmt = t => new Date(t).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+function renderLog(){
+  $('log').innerHTML = logItems.length ? logItems.map(e => `<li><span class="time">${fmt(e.t)}</span><span>${NAMES[e.cmd]} <span class="sub">${e.detail}</span></span><span class="st ${e.ok?'done':''}">${e.ok?'Sent':'Failed'}</span></li>`).join('') : '<li class="empty">Nothing sent yet.</li>';
+}
+async function send(cmd, btn){
+  const p = params(), trade = cmd === 'BUY' || cmd === 'SELL';
+  if (trade && !valid(p)) return say('Check lot, layers and gap.', 'var(--sell)');
+  if (!$('repo').value.trim() || !$('token').value.trim()) { $('connBox').open = true; return say('Add your repo and token first.', 'var(--sell)'); }
+  btn.disabled = true; say('Sending...');
+  lastId = Math.max(Math.floor(Date.now() / 1000), lastId + 1);
+  const line = `${lastId}|${cmd}|${p.lot}|${p.layers}|${p.gap}`;
+  const entry = { t: Date.now(), cmd, detail: trade ? `${p.lot} lot x ${p.layers} @ ${p.gap} pts` : '', ok: false };
+  try { await pushCommand(line); entry.ok = true; say('Sent. The EA picks it up on its next check (about 3 seconds).', 'var(--buy)'); }
+  catch (e) { say(e.message || 'Could not reach GitHub.', 'var(--sell)'); }
+  logItems.unshift(entry); logItems = logItems.slice(0, 10); save(); renderLog();
+  btn.disabled = false;
+}
+$('bBuy').onclick = () => send('BUY', $('bBuy'));
+$('bSell').onclick = () => send('SELL', $('bSell'));
+$('bBE').onclick = () => send('SET_BE', $('bBE'));
+$('bClose').onclick = () => {
+  const b = $('bClose');
+  if (closeArmed) { clearTimeout(closeArmed); closeArmed = null; b.classList.remove('armed'); b.textContent = 'Close all'; send('CLOSE', b); }
+  else { b.classList.add('armed'); b.textContent = 'Tap again to close all';
+    closeArmed = setTimeout(() => { closeArmed = null; b.classList.remove('armed'); b.textContent = 'Close all'; }, 3000); }
+};
+drawLadder(); renderLog(); checkConn();
+</script>
+</body>
+</html>
